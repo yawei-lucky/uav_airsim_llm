@@ -55,6 +55,8 @@ def eval(model_wrapper: BaseModelWrapper, assist: Assist, eval_env: AirVLNENV, e
                 batch_state.predict_dones = model_wrapper.predict_done(batch_state.episodes, batch_state.object_infos)
                 
                 batch_state.update_metric()
+                if any(batch_state.success):
+                    print("至少一个无人机成功！")
                 
                 assist_notices = batch_state.get_assist_notices()
                 inputs, _ = model_wrapper.prepare_inputs(batch_state.episodes, batch_state.target_positions, assist_notices)
@@ -66,7 +68,7 @@ def eval(model_wrapper: BaseModelWrapper, assist: Assist, eval_env: AirVLNENV, e
 
 
 if __name__ == "__main__":
-    
+
     eval_save_path = args.eval_save_path
     eval_json_path = args.eval_json_path
     dataset_path = args.dataset_path

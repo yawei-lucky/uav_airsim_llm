@@ -216,6 +216,7 @@ class DaggerBatchState:
                     
 class EvalBatchState:
     def __init__(self, batch_size, env_batchs, env, assist):
+        '''
         self.batch_size = batch_size
         self.eval_env = env
         self.assist = assist
@@ -235,6 +236,40 @@ class EvalBatchState:
         self.envs_to_pause = []
         
         self._initialize_batch_data()
+        '''
+        # Yawei
+        # Yawei: 多UAV版本，假设每条轨迹2个UAV
+        uav_num = 2
+        self.batch_size = uav_num
+        self.eval_env = env
+        self.assist = assist
+
+        # episodes初始化
+        self.episodes = [[] for _ in range(uav_num)]
+
+        # target_positions, object_infos, trajs, ori_data_dirs都复制两份
+        self.target_positions = [b['object_position'] for b in env_batchs for _ in range(uav_num)]
+        self.object_infos = [self._get_object_info(b) for b in env_batchs for _ in range(uav_num)]
+        self.trajs = [b['trajectory'] for b in env_batchs for _ in range(uav_num)]
+        self.ori_data_dirs = [b['trajectory_dir'] for b in env_batchs for _ in range(uav_num)]
+
+        # 状态记录
+        self.dones = [False] * self.batch_size
+        self.predict_dones = [False] * self.batch_size
+        self.collisions = [False] * self.batch_size
+        self.success = [False] * self.batch_size
+        self.oracle_success = [False] * self.batch_size
+        self.early_end = [False] * self.batch_size
+        self.skips = [False] * self.batch_size
+        self.distance_to_ends = [[] for _ in range(self.batch_size)]
+        self.envs_to_pause = []
+
+        # 打印监测
+        print(f"[Yawei Debug] 初始化成功，轨迹数量: {len(env_batchs)}, UAV数量: {self.batch_size}")
+        print(f"[Yawei Debug] target_positions数: {len(self.target_positions)}, traj数: {len(self.trajs)}")
+
+        # end
+        
 
     def _get_object_info(self, batch):
         object_desc_dict = self._load_object_description()
