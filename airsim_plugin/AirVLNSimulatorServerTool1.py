@@ -289,7 +289,7 @@ env_exec_path_dict = {
     },
     "Carla_Town07": {
         'bash_name': 'CarlaUE4',
-        'exec_path': './carla_town_env/Town07/LinuxNoEditor',
+        'exec_path': './carla_town_envs/Town07/LinuxNoEditor',
     },
     "Carla_Town10HD": {
         'bash_name': 'CarlaUE4',
@@ -458,11 +458,6 @@ class EventHandler(object):
         return True
 
     def _open_scenes(self, ip: str , scen_id_gpu_list: list):
-        # 解决 msgpack 传入场景名为 bytes 的问题
-        for i in range(len(scen_id_gpu_list)):
-            if isinstance(scen_id_gpu_list[i][0], bytes):
-                scen_id_gpu_list[i][0] = scen_id_gpu_list[i][0].decode("utf-8")
-        
         print(
             "{}\t关闭场景中".format(
                 str(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())),
@@ -546,16 +541,6 @@ class EventHandler(object):
                         shell=True,
                     )
                     p_s.append(p)
-                    # with open(str(CWD_DIR / "scene_launch.log"), "a") as log_file:
-                    #     p = subprocess.Popen(
-                    #         subprocess_execute,
-                    #         stdin=None,
-                    #         stdout=log_file,
-                    #         stderr=log_file,
-                    #         shell=True,
-                    #     )
-                    #     p_s.append(p)
-
                 except Exception as e:
                     print(
                         "{}\t{}".format(
@@ -568,8 +553,7 @@ class EventHandler(object):
                     return False, None
         time.sleep(10)
         self.scene_used_ports += copy.deepcopy(ports)
-        if isinstance(ip, bytes):
-            ip = ip.decode('utf-8') 
+        
         print("finished", ip)
 
         return True, (ip, ports)
@@ -594,15 +578,7 @@ class EventHandler(object):
                         stdin=None, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT,
                         shell=True,
                     )
-        # with open(str(CWD_DIR / "scene_launch.log"), "a") as log_file:
-        #     p = subprocess.Popen(
-        #         subprocess_execute,
-        #         stdin=None,
-        #         stdout=log_file,
-        #         stderr=log_file,
-        #         shell=True,
-        #     )
-
+        
     def reopen_scenes(self, ip: str, scen_id_gpu_list: list):
         print(
             "{}\tSTART reopen_scenes".format(
@@ -610,8 +586,7 @@ class EventHandler(object):
             )
         )
         try:
-            # print(scen_id_gpu_list)
-            print([[x[0].decode("utf-8") if isinstance(x[0], bytes) else x[0], x[1]] for x in scen_id_gpu_list])
+            print(scen_id_gpu_list)
             ip = ip
             for item in scen_id_gpu_list:
                 try:
@@ -619,7 +594,6 @@ class EventHandler(object):
                 except:
                     pass
                 # item[0] = item[0].decode('utf-8')
-                    
             result = self._open_scenes(ip, scen_id_gpu_list)
         except Exception as e:
             print(e)

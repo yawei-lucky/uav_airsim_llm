@@ -198,8 +198,6 @@ class AirVLNSimulatorClientTool:
             print('waiting for airsim connection...')
             time.sleep(3 * len(self.machines_info[index]['open_scenes']) + 35)
             ip = result[1][0]
-            if isinstance(ip, bytes):
-                ip = ip.decode('utf-8')             
             ports = result[1][1]
             self.airsim_ip = ip
             self.airsim_ports = ports

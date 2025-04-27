@@ -79,6 +79,13 @@ if __name__ == "__main__":
     assert CheckPort(), 'error port'
 
     eval_env = initialize_env_eval(dataset_path=dataset_path, save_path=eval_save_path, eval_json_path=eval_json_path)
+    
+    # eval_env = initialize_env_eval(
+    #     dataset_path=dataset_path,
+    #     save_path=eval_save_path,
+    #     eval_json_path=eval_json_path,
+    #     activate_maps=["NewYorkCity"]  # ✅ 添加这行
+    # )
 
     if is_dist_avail_and_initialized():
         torch.distributed.destroy_process_group()

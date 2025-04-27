@@ -17,8 +17,13 @@ def arg_parse():
                       default='/path/to/your/dataset',
                       help='path to your dataset root dir')
   parser.add_argument("--map_list",
-                        default=['NewYorkCity', 'ModernCityMap', 'NYCEnvironmentMegapa', 'TropicalIsland', 'ModularPark', 'Carla_Town01', 'Carla_Town02', 'Carla_Town03', 'Carla_Town04','Carla_Town05', 'Carla_Town06', 'Carla_Town07', 'Carla_Town10HD', 'Carla_Town15',
-                                 'BattlefieldKitDesert', 'BrushifyCountryRoads', 'BrushifyForestPack', 'BrushifyUrban', 'Japanese_Street', 'London_Street', 'NordicHarbour', 'WesterTown'],
+                        # default=['NewYorkCity', 'ModernCityMap', 'NYCEnvironmentMegapa', 'TropicalIsland', 'ModularPark', 'Carla_Town01', 'Carla_Town02', 'Carla_Town03', 'Carla_Town04','Carla_Town05', 'Carla_Town06', 'Carla_Town07', 'Carla_Town10HD', 'Carla_Town15',
+                        #          'BattlefieldKitDesert', 'BrushifyCountryRoads', 'BrushifyForestPack', 'BrushifyUrban', 'Japanese_Street', 'London_Street', 'NordicHarbour', 'WesterTown'],
+                        # default=['ModernCityMap'], 
+                      default=['NewYorkCity', 
+                              #  'ModernCityMap', 
+                                'ModularPark', 'Carla_Town01', 'Carla_Town02', 'Carla_Town03', 'Carla_Town04','Carla_Town05', 'Carla_Town06', 'Carla_Town07', 'Carla_Town10HD', 'Carla_Town15',
+                                'BattlefieldKitDesert', 'BrushifyCountryRoads', 'BrushifyForestPack', 'BrushifyUrban', 'Japanese_Street', 'London_Street', 'NordicHarbour', 'NYCEnvironmentMegapa', 'TropicalIsland', 'WesterTown'],                     
                       nargs="+",
                       help='processed map name')
   parser.add_argument("--workers",
@@ -86,3 +91,5 @@ if __name__ == "__main__":
     with multiprocessing.Pool(args.workers) as p:
       r = list(tqdm.tqdm(p.imap_unordered(worker, traj_list), total=len(traj_list)))
     print(directory_path, 'finished.')
+    
+  print("✅ All preprocessing done.")

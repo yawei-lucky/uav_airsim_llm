@@ -21,8 +21,13 @@ def arg_parse():
                         default='/path/to/your/dataset',
                         help='path to your dataset root dir')
     parser.add_argument("--map_list",
-                        default=['NewYorkCity', 'ModernCityMap', 'NYCEnvironmentMegapa', 'TropicalIsland', 'ModularPark', 'Carla_Town01', 'Carla_Town02', 'Carla_Town03', 'Carla_Town04','Carla_Town05', 'Carla_Town06', 'Carla_Town07', 'Carla_Town10HD', 'Carla_Town15',
-                                 'BattlefieldKitDesert', 'BrushifyCountryRoads', 'BrushifyForestPack', 'BrushifyUrban', 'Japanese_Street', 'London_Street', 'NordicHarbour', 'WesterTown'],
+                        default=['NewYorkCity', 
+                                #  'ModernCityMap', 
+                                 'ModularPark', 'Carla_Town01', 'Carla_Town02', 'Carla_Town03', 'Carla_Town04','Carla_Town05', 'Carla_Town06', 'Carla_Town07', 'Carla_Town10HD', 'Carla_Town15',
+                                 'BattlefieldKitDesert', 'BrushifyCountryRoads', 'BrushifyForestPack', 'BrushifyUrban', 'Japanese_Street', 'London_Street', 'NordicHarbour', 'NYCEnvironmentMegapa', 'TropicalIsland', 'WesterTown'],
+                        # default=['ModernCityMap'],
+                        # , 'NYCEnvironmentMegapa', 'TropicalIsland', 'ModularPark', 'Carla_Town01', 'Carla_Town02', 'Carla_Town03', 'Carla_Town04','Carla_Town05', 'Carla_Town06', 'Carla_Town07', 'Carla_Town10HD', 'Carla_Town15',
+                        #          'BattlefieldKitDesert', 'BrushifyCountryRoads', 'BrushifyForestPack', 'BrushifyUrban', 'Japanese_Street', 'London_Street', 'NordicHarbour', 'WesterTown'],
                         nargs="+",
                         help='processed map name')
     opt = parser.parse_args()
@@ -180,4 +185,8 @@ if __name__ == '__main__':
         if not os.path.isdir(map_dir):
             continue
         traj_paths = merge_map_logs(map_dir)
+        print(map_dir, 'finished.')
+        
+    print("✅ All preprocessing done.")
+
         

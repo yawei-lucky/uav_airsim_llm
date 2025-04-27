@@ -1,0 +1,20 @@
+#!/bin/bash
+#PBS -l select=1:ngpus=1:ncpus=8
+#PBS -l walltime=24:00:00
+#PBS -P personal-yaweizha
+#PBS -N TravelUAV_FinalEval
+#PBS -j oe
+#PBS -M yawei.zhang@ntu.edu.sg
+#PBS -m abe
+
+# Activate conda environment
+source /home/users/ntu/yaweizha/miniconda3/etc/profile.d/conda.sh
+conda activate llamauav
+
+module load cuda/11.8.0
+
+# Change to project directory and execute evaluation script
+cd /home/users/ntu/yaweizha/scratch/TravelUAV
+
+bash server_bkg.sh
+bash scripts/eval.sh

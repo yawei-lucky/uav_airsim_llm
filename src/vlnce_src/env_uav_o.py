@@ -109,160 +109,64 @@ class AirVLNENV:
         self.one_scene_could_use_num = 5e3
         self.this_scene_used_cnt = 0
         self.init_VectorEnvUtil()
+        print('Env scenes', scenes)
 
-    # def load_my_datasets(self):
-    #     list_data_dict = json.load(open(self.eval_json_path, "r"))
-    #     trajectorys_path = set()
-    #     skipped_trajectory_set = set()
-    #     data = []
-    #     old_state = random.getstate()
-    #     for item in list_data_dict:
-    #         trajectorys_path.add(os.path.join(self.dataset_path, item['json']))
-    #     for item in os.listdir(self.exist_save_path):
-    #         item = item.replace('success_', '').replace('oracle_', '')
-    #         skipped_trajectory_set.add(item)
-    #     print('Loading dataset metainfo...')
-    #     trajectorys_path = sorted(trajectorys_path)
-    #     for merged_json in tqdm.tqdm(trajectorys_path):
-    #         merged_json = merged_json.replace('data6', 'data5') # it is a fix since the mark.json saved on data5
-    #         path_parts = merged_json.strip('/').split('/')
-    #         map_name, seq_name = path_parts[-3], path_parts[-2]
-    #         if (len(self.activate_maps) > 0 and map_name not in self.activate_maps) or seq_name in skipped_trajectory_set:
-    #             continue
-    #         mark_json = merged_json.replace('merged_data.json', 'mark.json')
-    #         with open(mark_json, 'r') as f:
-    #             mark_json = json.load(f)
-    #             asset_name = mark_json['object_name']
-    #             object_position = mark_json['target']['position']
-    #             _, closest_area_info = find_closest_area(object_position, self.map_area_dict[map_name])
-    #             object_position = [closest_area_info[9], closest_area_info[10], closest_area_info[11]]
-    #             obj_pose = airsim.Pose(airsim.Vector3r(closest_area_info[9], closest_area_info[10], closest_area_info[11]), 
-    #                             airsim.Quaternionr(closest_area_info[13], closest_area_info[14], closest_area_info[15], closest_area_info[12]))
-    #             obj_scale = airsim.Vector3r(closest_area_info[17], closest_area_info[17], closest_area_info[17])
-    #             asset_name = closest_area_info[16]
-    #         traj_info = {}
-    #         frames = []
-    #         traj_dir = '/' + '/'.join(path_parts[:-1])
-    #         traj_info['map_name'] = map_name
-    #         traj_info['seq_name'] = seq_name
-    #         traj_info['merged_json'] = merged_json
-    #         with open(merged_json, 'r') as obj_f:
-    #             merged_data = json.load(obj_f)
-    #         frames = merged_data['trajectory_raw_detailed']
-    #         traj_info['trajectory'] = frames
-    #         traj_info['trajectory_dir'] = traj_dir
-    #         traj_info['instruction'] = merged_data['conversations'][0]['value']
-    #         traj_info['object'] = {'pose': obj_pose, 'scale': obj_scale, 'asset_name': asset_name}
-    #         traj_info['object_position'] = object_position
-    #         traj_info['length'] = len(frames)
-    #         data.append(traj_info)
-    #     random.setstate(old_state)      # Recover the state of the random generator
-    #     return data
-    
     def load_my_datasets(self):
         list_data_dict = json.load(open(self.eval_json_path, "r"))
         trajectorys_path = set()
         skipped_trajectory_set = set()
         data = []
         old_state = random.getstate()
-
         for item in list_data_dict:
             trajectorys_path.add(os.path.join(self.dataset_path, item['json']))
-        
         for item in os.listdir(self.exist_save_path):
             item = item.replace('success_', '').replace('oracle_', '')
             skipped_trajectory_set.add(item)
-
         print('Loading dataset metainfo...')
         trajectorys_path = sorted(trajectorys_path)
-
         for merged_json in tqdm.tqdm(trajectorys_path):
-            try:
-                merged_json = merged_json.replace('data6', 'data5')  # fix路径
-                path_parts = merged_json.strip('/').split('/')
-                map_name, seq_name = path_parts[-3], path_parts[-2]
+            merged_json = merged_json.replace('data6', 'data5') # it is a fix since the mark.json saved on data5
+            path_parts = merged_json.strip('/').split('/')
+            map_name, seq_name = path_parts[-3], path_parts[-2]
 
-                # ✅ 根据激活地图和已完成列表过滤
-                if (len(self.activate_maps) > 0 and map_name not in self.activate_maps) or seq_name in skipped_trajectory_set:
-                    continue
+            # # **屏蔽 `TropicalIsland`**
+            # if map_name != 'BrushifyCountryRoads':
+            #     print(f"Skipping dataset: {map_name}")
+            #     continue  # 直接跳过，不加载数据
 
-                # print('Used map_name', map_name)
-
-                mark_json = merged_json.replace('merged_data.json', 'mark.json')
-
-                # ✅ 检查文件是否存在
-                if not os.path.exists(merged_json):
-                    # print(f"[SKIP] missing merged_data.json: {merged_json}")
-                    continue
-                if not os.path.exists(mark_json):
-                    # print(f"[SKIP] missing mark.json: {mark_json}")
-                    continue
-
-                # ✅ 读取 mark.json
-                try:
-                    with open(mark_json, 'r') as f:
-                        mark_json_data = json.load(f)
-                        asset_name = mark_json_data['object_name']
-                        object_position = mark_json_data['target']['position']
-                        _, closest_area_info = find_closest_area(object_position, self.map_area_dict[map_name])
-                        object_position = [closest_area_info[9], closest_area_info[10], closest_area_info[11]]
-                        obj_pose = airsim.Pose(
-                            airsim.Vector3r(*object_position),
-                            airsim.Quaternionr(
-                                closest_area_info[13], closest_area_info[14],
-                                closest_area_info[15], closest_area_info[12]
-                            )
-                        )
-                        obj_scale = airsim.Vector3r(closest_area_info[17],) * 3
-                        asset_name = closest_area_info[16]
-                except Exception as e:
-                    print(f"[SKIP] failed to parse mark.json: {mark_json} -- {e}")
-                    continue
-
-                # ✅ 读取 merged_data.json
-                try:
-                    with open(merged_json, 'r') as obj_f:
-                        merged_data = json.load(obj_f)
-                except Exception as e:
-                    print(f"[SKIP] failed to parse merged_data.json: {merged_json} -- {e}")
-                    continue
-
-                # ✅ 构造轨迹数据
-                traj_info = {}
-                frames = merged_data.get('trajectory_raw_detailed', [])
-                if len(frames) == 0:
-                    print(f"[SKIP] empty trajectory in: {merged_json}")
-                    continue
-
-                traj_dir = '/' + '/'.join(path_parts[:-1])
-                traj_info['map_name'] = map_name
-                traj_info['seq_name'] = seq_name
-                traj_info['merged_json'] = merged_json
-                traj_info['trajectory'] = frames
-                traj_info['trajectory_dir'] = traj_dir
-                traj_info['instruction'] = merged_data['conversations'][0]['value']
-                traj_info['object'] = {'pose': obj_pose, 'scale': obj_scale, 'asset_name': asset_name}
-                traj_info['object_position'] = object_position
-                traj_info['length'] = len(frames)
-
-                data.append(traj_info)
-            
-            except Exception as outer_e:
-                print(f"[SKIP] unexpected error: {merged_json} -- {outer_e}")
+            if (len(self.activate_maps) > 0 and map_name not in self.activate_maps) or seq_name in skipped_trajectory_set:
                 continue
-
-        random.setstate(old_state)  # 恢复随机种子状态
-        
-        print("\n========== ✅ [Loaded Samples Summary] ✅ ==========")
-        print(f"Total loaded samples: {len(data)}")
-        loaded_map_set = set()
-        for i, traj in enumerate(data):
-            loaded_map_set.add(traj['map_name'])
-            # print(f"[{i+1}] {traj['map_name']}/{traj['seq_name']} | len={traj['length']} | instruction={traj['instruction'][:30]}...")
-
-        print("\n✅ Loaded maps:", sorted(list(loaded_map_set)))
-        print("============================================\n")
-
+            
+            print('Used map_name', map_name)
+            
+            mark_json = merged_json.replace('merged_data.json', 'mark.json')
+            with open(mark_json, 'r') as f:
+                mark_json = json.load(f)
+                asset_name = mark_json['object_name']
+                object_position = mark_json['target']['position']
+                _, closest_area_info = find_closest_area(object_position, self.map_area_dict[map_name])
+                object_position = [closest_area_info[9], closest_area_info[10], closest_area_info[11]]
+                obj_pose = airsim.Pose(airsim.Vector3r(closest_area_info[9], closest_area_info[10], closest_area_info[11]), 
+                                airsim.Quaternionr(closest_area_info[13], closest_area_info[14], closest_area_info[15], closest_area_info[12]))
+                obj_scale = airsim.Vector3r(closest_area_info[17], closest_area_info[17], closest_area_info[17])
+                asset_name = closest_area_info[16]
+            traj_info = {}
+            frames = []
+            traj_dir = '/' + '/'.join(path_parts[:-1])
+            traj_info['map_name'] = map_name
+            traj_info['seq_name'] = seq_name
+            traj_info['merged_json'] = merged_json
+            with open(merged_json, 'r') as obj_f:
+                merged_data = json.load(obj_f)
+            frames = merged_data['trajectory_raw_detailed']
+            traj_info['trajectory'] = frames
+            traj_info['trajectory_dir'] = traj_dir
+            traj_info['instruction'] = merged_data['conversations'][0]['value']
+            traj_info['object'] = {'pose': obj_pose, 'scale': obj_scale, 'asset_name': asset_name}
+            traj_info['object_position'] = object_position
+            traj_info['length'] = len(frames)
+            data.append(traj_info)
+        random.setstate(old_state)      # Recover the state of the random generator
         return data
     
     def _group_scenes(self):
@@ -276,6 +180,7 @@ class AirVLNENV:
     def init_VectorEnvUtil(self):
         self.delete_VectorEnvUtil()
         self.VectorEnvUtil = VectorEnvUtil(self.scenes, self.batch_size)
+        
 
     def delete_VectorEnvUtil(self):
         if hasattr(self, 'VectorEnvUtil'):
