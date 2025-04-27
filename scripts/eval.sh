@@ -17,7 +17,7 @@ CUDA_VISIBLE_DEVICES=0 python -u $root_dir/src/vlnce_src/eval.py \
     --use_gt True \
     --maxWaypoints 200 \
     --dataset_path /home/users/ntu/yaweizha/scratch/TravelUAV_dataset/TravelUAV/ \
-    --eval_save_path $root_dir/save/eval_closeloop/eval_test \
+    --eval_save_path $/home/users/ntu/yaweizha/scratch/save/eval_closeloop/eval_test \
     --model_path $model_dir/work_dirs/llama-vid-7b-pretrain-224-uav-full-data-lora32 \
     --model_base $model_dir/model_zoo/vicuna-7b-v1.5 \
     --vision_tower $model_dir/model_zoo/LAVIS/eva_vit_g.pth \
