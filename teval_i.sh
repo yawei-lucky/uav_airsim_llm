@@ -5,5 +5,4 @@ module load cuda/11.8.0
 # cd /home/users/ntu/yaweizha/scratch/TravelUAV
 
 bash server_bkg.sh
-sleep 8
 bash scripts/eval.sh

@@ -1,0 +1,1 @@
+qsub -I -l select=1:ncpus=16:ngpus=1 -l walltime=01:10:00 -P personal-yaweizha

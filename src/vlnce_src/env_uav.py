@@ -97,6 +97,8 @@ class AirVLNENV:
         logger.info('Loaded dataset {}.'.format(len(self.eval_json_path)))
         self.index_data = 0
         self.data = self.ori_raw_data
+        self.use_saved_obs = args.use_saved_obs if hasattr(args, 'use_saved_obs') else False
+
         
         if dataset_group_by_scene:
             self.data = self._group_scenes()
@@ -451,11 +453,36 @@ class AirVLNENV:
                 cnt += 1
 
 
+    # def get_obs(self):
+    #     obs_states = self._getStates()
+    #     obs, states = self.VectorEnvUtil.get_obs(obs_states)
+    #     self.sim_states = states
+    #     return obs
+    
     def get_obs(self):
-        obs_states = self._getStates()
-        obs, states = self.VectorEnvUtil.get_obs(obs_states)
-        self.sim_states = states
-        return obs
+        if self.use_saved_obs:
+            # ✅ 直接从本地文件读观测
+            save_file = f"./saved_obs/batch_{self.index_data}.npz"
+            data = np.load(save_file, allow_pickle=True)
+            obs = data['obs'].tolist()
+            states = data['states'].tolist()
+            self.sim_states = states
+            return obs
+        else:
+            # ✅ 正常AirSim连接
+            obs_states = self._getStates()
+            obs, states = self.VectorEnvUtil.get_obs(obs_states)
+            self.sim_states = states
+
+            # ✅ ！！就在这里，保存下来！！
+            save_dir = "./saved_obs"
+            os.makedirs(save_dir, exist_ok=True)
+            save_file = os.path.join(save_dir, f"batch_{self.index_data}.npz")
+            np.savez(save_file, obs=obs, states=self.sim_states)
+
+            return obs
+
+
 
     def _getStates(self):
         responses = self.simulator_tool.getImageResponses()
